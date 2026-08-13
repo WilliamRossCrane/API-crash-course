@@ -1,46 +1,60 @@
-import { Controller, Get, Post, Put, Body, Query, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Query,
+  Param,
+  BadRequestException,
+} from '@nestjs/common';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-
-// @Get()          // GET /user
-// @Get(':id')     // GET /user/:id
-// @Post()         // POST /user
-// @Put(':id')     // PUT /user/:id
-// @Delete(':id')  // DELETE /user/:id
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
+  constructor(private readonly userService: UserService) {}
+
   @Get()
   getUsers(@Query('name') name: string) {
-    return {
-      name,
-    };
+    return this.userService.findAllUsers(name);
   }
 
   @Get(':id')
   getUserById(@Param('id') id: string) {
-    return {
-      id,
-    };
+    const parsed = parseInt(id, 10);
+    if (Number.isNaN(parsed)) {
+      throw new BadRequestException('Invalid id');
+    }
+
+    return this.userService.findOneUser(parsed);
   }
 
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
-    return {
-      data: createUserDto,
-      message: 'User created successfully',
-    };
+    return this.userService.createUser(createUserDto);
   }
 
   @Put(':id')
   updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return {
-      data: {
-        id,
-        ...updateUserDto,
-      },
-      message: 'User updated successfully',
-    };
+    const parsed = parseInt(id, 10);
+    if (Number.isNaN(parsed)) {
+      throw new BadRequestException('Invalid id');
+    }
+
+    return this.userService.updateUser(parsed, updateUserDto);
+  }
+
+  @Delete(':id')
+  deleteUser(@Param('id') id: string) {
+    const parsed = parseInt(id, 10);
+    if (Number.isNaN(parsed)) {
+      throw new BadRequestException('Invalid id');
+    }
+
+    return this.userService.deleteUser(parsed);
   }
 }

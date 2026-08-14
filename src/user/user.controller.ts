@@ -8,6 +8,7 @@ import {
   Query,
   Param,
   BadRequestException,
+  ParseIntPipe,
 } from '@nestjs/common';
 
 import { CreateUserDto } from './dto/create-user.dto';
@@ -24,13 +25,8 @@ export class UserController {
   }
 
   @Get(':id')
-  getUserById(@Param('id') id: string) {
-    const parsed = parseInt(id, 10);
-    if (Number.isNaN(parsed)) {
-      throw new BadRequestException('Invalid id');
-    }
-
-    return this.userService.findOneUser(parsed);
+  getUserById(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.findOneUser(id);
   }
 
   @Post()

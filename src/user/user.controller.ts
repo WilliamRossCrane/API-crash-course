@@ -9,11 +9,13 @@ import {
   Param,
   BadRequestException,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
+import { RoleGuard } from '../guards/role.guard';
 
 @Controller('user')
 export class UserController {
@@ -44,7 +46,9 @@ export class UserController {
     return this.userService.updateUser(parsed, updateUserDto);
   }
 
+  // DELETE /user/1 -> 401 -> ROLE: ADMIN -> GO THROUGH
   @Delete(':id')
+  @UseGuards(RoleGuard)
   deleteUser(@Param('id') id: string) {
     const parsed = parseInt(id, 10);
     if (Number.isNaN(parsed)) {
